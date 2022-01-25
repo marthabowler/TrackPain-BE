@@ -10,7 +10,7 @@ painkiller_name text
 
 create table pain(
 pain_id serial PRIMARY KEY,
-time time default now(),
+time timestamp default now(),
 seriousness int, 
 description text,
 condition_id int,
