@@ -24,7 +24,7 @@ client.connect();
 app.get("/pain", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id"
+      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id order by time asc"
     );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
