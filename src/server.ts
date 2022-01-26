@@ -31,6 +31,32 @@ app.get("/pain", async (req, res) => {
   }
 });
 
+app.get("/painkillers", async (req, res) => {
+  try {
+    const dbres = await client.query("SELECT * FROM painkillers");
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
+app.get("/users", async (req, res) => {
+  try {
+    const dbres = await client.query("SELECT * FROM users");
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
+app.get("/conditions", async (req, res) => {
+  try {
+    const dbres = await client.query("SELECT * FROM conditions");
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
 // POST the pain into the db
 app.post("/pain", async (req, res) => {
   const { seriousness, description, condition_id, painkiller_id } = req.body;
@@ -51,6 +77,7 @@ app.post("/pain", async (req, res) => {
 
 app.post("/painkiller", async (req, res) => {
   const { painkiller_name } = req.body;
+  console.log("posting painkiller:", painkiller_name);
   try {
     const dbres = await client.query(
       `insert into painkillers (painkiller_name) values($1) returning *`,
