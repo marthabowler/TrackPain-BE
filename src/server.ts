@@ -52,6 +52,17 @@ app.get("/users", async (req, res) => {
   }
 });
 
+app.get("/correlations/painkillers", async (req, res) => {
+  try {
+    const dbres = await client.query(
+      "SELECT p1.painkiller_name, c.condition_id,c.condition_name, avg(seriousness) FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id group by(p1.painkiller_name, c.condition_id, c.condition_name)"
+    );
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
 app.get("/painkillers", async (req, res) => {
   try {
     const dbres = await client.query("SELECT * FROM painkillers");
