@@ -31,9 +31,12 @@ app.get("/pain", async (req, res) => {
   }
 });
 
-app.get("/painkillers", async (req, res) => {
+app.get("/pain/:condition_id", async (req, res) => {
   try {
-    const dbres = await client.query("SELECT * FROM painkillers");
+    const dbres = await client.query(
+      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id where p.condition_id = $1 order by time asc",
+      [req.params.condition_id]
+    );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
     res.status(404).json({ status: "failed", error: err });
@@ -43,6 +46,27 @@ app.get("/painkillers", async (req, res) => {
 app.get("/users", async (req, res) => {
   try {
     const dbres = await client.query("SELECT * FROM users");
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
+app.get("/painkillers", async (req, res) => {
+  try {
+    const dbres = await client.query("SELECT * FROM painkillers");
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
+app.get("/user/:user_id", async (req, res) => {
+  try {
+    const dbres = await client.query(
+      "SELECT p.condition_id FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id where p.user_id=$1",
+      [req.params.user_id]
+    );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
     res.status(404).json({ status: "failed", error: err });
