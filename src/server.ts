@@ -94,12 +94,29 @@ app.get("/conditions", async (req, res) => {
 });
 // POST the pain into the db
 app.post("/pain", async (req, res) => {
-  const { seriousness, description, condition_id, painkiller_id } = req.body;
+  const { seriousness, condition_id, painkiller_id } = req.body;
 
   try {
     const dbres = await client.query(
-      `insert into pain (seriousness, description, condition_id, painkiller_id) values($1, $2, $3, $4) returning *`,
-      [seriousness, description, condition_id, painkiller_id]
+      `insert into pain (seriousness, condition_id, painkiller_id) values($1, $2, $3) returning *`,
+      [seriousness, condition_id, painkiller_id]
+    );
+    res.status(201).json({
+      status: "success",
+      data: dbres.rows[0],
+    });
+  } catch (err) {
+    res.status(400).json({ status: "failed", error: err });
+  }
+});
+
+app.post("/user", async (req, res) => {
+  const { username } = req.body;
+
+  try {
+    const dbres = await client.query(
+      `insert into users (username) values($1) returning *`,
+      [username]
     );
     res.status(201).json({
       status: "success",

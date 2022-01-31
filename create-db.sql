@@ -26,8 +26,24 @@ REFERENCES users(user_id)
 
 create table users (
 username text,
-condition_id int,
 user_id serial PRIMARY KEY,
-FOREIGN KEY(condition_id)
-REFERENCES conditions(condition_id) 
+weight number,
+height number,
+gender text, 
+sex text
+)
+
+create table symptoms (
+symptom_id serial PRIMARY KEY,
+symptom_name text
+)
+
+create table conditions_symptoms (
+    condition_id number 
+    FOREIGN KEY(condition_id)
+REFERENCES conditions(condition_id),
+symptom_id number,
+FOREIGN KEY(symptom_id)
+    REFERENCES symptoms(symptom_id)
+
 )
