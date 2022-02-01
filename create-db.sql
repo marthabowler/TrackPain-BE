@@ -12,7 +12,6 @@ create table pain(
 pain_id serial PRIMARY KEY,
 time timestamp default now(),
 seriousness int, 
-description text,
 condition_id int,
 painkiller_id int default 1,
 user_id int default 1,
@@ -23,6 +22,16 @@ REFERENCES painkillers(painkiller_id),
 FOREIGN KEY(user_id)
 REFERENCES users(user_id)
 ) 
+
+create table painkillers_taken(
+painkiller_id int, 
+FOREIGN KEY(painkiller_id)
+REFERENCES painkillers(painkiller_id),
+painkillers_taken_id serial PRIMARY KEY,
+condition_id int,
+REFERENCES conditions(condition_id),
+FOREIGN KEY(painkiller_id)
+)
 
 create table users (
 username text,
