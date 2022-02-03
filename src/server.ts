@@ -23,7 +23,7 @@ client.connect();
 app.get("/pain", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id order by time asc"
+      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN conditions c ON c.condition_id= p.condition_id order by time asc"
     );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
@@ -34,7 +34,7 @@ app.get("/pain", async (req, res) => {
 app.get("/pain/:condition_id", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id where p.condition_id = $1 order by time asc",
+      "SELECT * FROM pain p JOIN users u ON p.user_id = u.user_id JOIN conditions c ON c.condition_id= p.condition_id where p.condition_id = $1 order by time asc",
       [req.params.condition_id]
     );
     res.status(200).json({ status: "success", data: dbres.rows });
@@ -55,7 +55,7 @@ app.get("/users", async (req, res) => {
 app.get("/correlations/painkillers", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT p1.painkiller_name, c.condition_id,c.condition_name, avg(seriousness) FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id group by(p1.painkiller_name, c.condition_id, c.condition_name)"
+      "SELECT p1.painkiller_name, c.condition_id, c.condition_name, p2.has_worked FROM painkillers_taken p2 JOIN painkillers p1 ON p2.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p2.condition_id"
     );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
@@ -75,7 +75,7 @@ app.get("/painkillers", async (req, res) => {
 app.get("/user/:user_id", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT p.condition_id FROM pain p JOIN users u ON p.user_id = u.user_id JOIN painkillers p1 ON p.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p.condition_id where p.user_id=$1",
+      "SELECT p.condition_id FROM pain p JOIN users u ON p.user_id = u.user_id JOIN conditions c ON c.condition_id= p.condition_id where p.user_id=$1",
       [req.params.user_id]
     );
     res.status(200).json({ status: "success", data: dbres.rows });
@@ -94,12 +94,29 @@ app.get("/conditions", async (req, res) => {
 });
 // POST the pain into the db
 app.post("/pain", async (req, res) => {
-  const { seriousness, condition_id, painkiller_id } = req.body;
+  const { seriousness, condition_id } = req.body;
 
   try {
     const dbres = await client.query(
-      `insert into pain (seriousness, condition_id, painkiller_id) values($1, $2, $3) returning *`,
-      [seriousness, condition_id, painkiller_id]
+      `insert into pain (seriousness, condition_id) values($1, $2) returning *`,
+      [seriousness, condition_id]
+    );
+    res.status(201).json({
+      status: "success",
+      data: dbres.rows[0],
+    });
+  } catch (err) {
+    res.status(400).json({ status: "failed", error: err });
+  }
+});
+
+app.post("/painkillertaken", async (req, res) => {
+  const { painkiller_id, condition_id, user_id, has_worked } = req.body;
+
+  try {
+    const dbres = await client.query(
+      `insert into painkillers_taken (painkiller_id, condition_id, user_id, has_worked) values($1, $2, $3, $4) returning *`,
+      [painkiller_id, condition_id, user_id, has_worked]
     );
     res.status(201).json({
       status: "success",
