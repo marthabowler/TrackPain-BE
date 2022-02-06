@@ -61,8 +61,13 @@ REFERENCES users(user_id)
 );
 
 
+select count (has_worked === true), painkiller_name, condition_name, has_worked from painkillers_taken pt JOIN painkillers p on p.painkiller_id=pt.painkiller_id JOIN conditions c on c.condition_id=pt.condition_id where pt.has_worked = true group by (condition_name, painkiller_name, has_worked);
 
 
+select count (has_worked), painkiller_name, condition_name, has_worked from painkillers_taken pt JOIN painkillers p on p.painkiller_id=pt.painkiller_id JOIN conditions c on c.condition_id=pt.condition_id where pt.has_worked = false group by (condition_name, painkiller_name, has_worked); 
+
+
+select count (has_worked = true) as has_worked, count (has_worked = false)  as hasnt_worked, painkiller_name, condition_name from painkillers_taken pt JOIN painkillers p on p.painkiller_id=pt.painkiller_id JOIN conditions c on c.condition_id=pt.condition_id group by (condition_name, painkiller_name);
 
 
 
