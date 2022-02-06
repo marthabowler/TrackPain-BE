@@ -52,10 +52,21 @@ app.get("/users", async (req, res) => {
   }
 });
 
-app.get("/correlations/painkillers", async (req, res) => {
+app.get("/correlations/hasworked", async (req, res) => {
   try {
     const dbres = await client.query(
-      "SELECT p1.painkiller_name, c.condition_id, c.condition_name, p2.has_worked FROM painkillers_taken p2 JOIN painkillers p1 ON p2.painkiller_id=p1.painkiller_id JOIN conditions c ON c.condition_id= p2.condition_id"
+      "select count (has_worked) as has_worked, painkiller_name, condition_name from painkillers_taken pt JOIN painkillers p on p.painkiller_id=pt.painkiller_id JOIN conditions c on c.condition_id=pt.condition_id where has_worked=true group by (condition_name, painkiller_name)"
+    );
+    res.status(200).json({ status: "success", data: dbres.rows });
+  } catch (err) {
+    res.status(404).json({ status: "failed", error: err });
+  }
+});
+
+app.get("/correlations/notworked", async (req, res) => {
+  try {
+    const dbres = await client.query(
+      "select count (has_worked) as not_worked, painkiller_name, condition_name from painkillers_taken pt JOIN painkillers p on p.painkiller_id=pt.painkiller_id JOIN conditions c on c.condition_id=pt.condition_id where has_worked=false group by (condition_name, painkiller_name)"
     );
     res.status(200).json({ status: "success", data: dbres.rows });
   } catch (err) {
